@@ -6,7 +6,7 @@ const uiSettings={
   deskColumns:4,
   cardScale:100,
   deskGap:8,
-  numericDisplay:'bar',
+  numericDisplay:'color',
     numericBalanceScale:30,
   categoryBalanceScale:500,
   numericClusterScale:30,
@@ -93,12 +93,15 @@ const I18N={
     addSlot:'+ Add slot', unlock:'Unlock', lock:'Lock', fixedLabel:'Fixed',
     projectOpenFailed:'Could not open the project file.', fieldNameRequired:'Enter a field name.',
     duplicateField:'A field with the same name already exists.', fieldAdded:'Field added.',
+    deleteColumn:'Delete column',
+    deleteColumnConfirm:'Delete this column? This cannot be undone with the current table data.',
     chooseTwo:'Select two different members.', missingHeader:'No header row found.',
     selectedFile:'Selected:', loadedMembers:'members loaded.', loadFailed:'Failed to load file.',
     none:'None',
     deleteGroupConfirm:'This group contains members. Deleting it will leave them unassigned. Continue?',
     deleteGroup:'Delete group',
-    categoryDesc:'ratio', numericDesc:'mean', ordinalDesc:'level distribution', booleanDesc:'count', ignoreDesc:'not optimized'
+    categoryDesc:'ratio', numericDesc:'mean', ordinalDesc:'level distribution', booleanDesc:'count', ignoreDesc:'not optimized',
+    balanceRangeWarning:'Enter a value from -20 to +20.'
   },
   ja:{
     subtitle:'属性を考慮したグループ編成',
@@ -153,12 +156,15 @@ const I18N={
     addSlot:'+ 枠を追加', unlock:'固定解除', lock:'固定', fixedLabel:'固定',
     projectOpenFailed:'プロジェクトファイルを開けませんでした。', fieldNameRequired:'項目名を入力してください。',
     duplicateField:'同じ項目名があります。', fieldAdded:'項目を追加しました。',
+    deleteColumn:'列を削除',
+    deleteColumnConfirm:'この列を削除しますか？現在の表データからも削除されます。',
     chooseTwo:'異なる2人を選んでください。', missingHeader:'ヘッダーがありません。',
     selectedFile:'選択中:', loadedMembers:'人を読み込みました。', loadFailed:'読み込みに失敗しました。',
     none:'表示なし',
     deleteGroupConfirm:'このグループにはメンバーがいます。削除すると未配置になります。続けますか？',
     deleteGroup:'グループを削除',
-    categoryDesc:'比率', numericDesc:'平均', ordinalDesc:'段階分布', booleanDesc:'人数', ignoreDesc:'最適化なし'
+    categoryDesc:'比率', numericDesc:'平均', ordinalDesc:'段階分布', booleanDesc:'人数', ignoreDesc:'最適化なし',
+    balanceRangeWarning:'-20〜+20の範囲で入力してください。'
   }
 };
 
@@ -411,9 +417,45 @@ function normalizeType(t){
   if(['id','category','numeric','ordinal','boolean','ignore'].includes(t)) return t;
   return 'category';
 }
+
+function deleteSchemaColumn(key){
+  const idx=schema.findIndex(c=>c.key===key);
+  if(idx<0) return;
+  const col=schema[idx];
+  if(col.type==='id') return;
+
+  const msg=(typeof tr==='function' ? tr('deleteColumnConfirm') : 'Delete this column?');
+  if(!confirm(`${col.label}: ${msg}`)) return;
+
+  schema.splice(idx,1);
+  students.forEach(s=>{ if(s.values) delete s.values[key]; });
+
+  if(displayFieldKey===key){
+    displayFieldKey='';
+    sortPreview=null;
+  }
+
+  renderAll();
+}
+
 function renderStudents(){
   const editing=memberTableMode==='edit';
-  $('studentHead').innerHTML='<tr>'+schema.map(x=>`<th>${esc(x.label)}<div class="help">${x.type}</div></th>`).join('')+(editing?'<th></th>':'')+'</tr>';
+  $('studentHead').innerHTML='<tr>'+schema.map(x=>{
+    const canDelete=editing && x.type!=='id';
+    const del=canDelete
+      ? `<button class="column-delete" data-key="${esc(x.key)}" title="${typeof tr==='function'?tr('deleteColumn'):'Delete column'}" aria-label="${typeof tr==='function'?tr('deleteColumn'):'Delete column'}">×</button>`
+      : '';
+    return `<th><div class="column-head"><span class="column-title">${esc(x.label)}</span>${del}</div><div class="help">${x.type}</div></th>`;
+  }).join('')+(editing?'<th class="member-delete-head"></th>':'')+'</tr>';
+
+  if(editing){
+    $('studentHead').querySelectorAll('.column-delete').forEach(btn=>{
+      btn.onclick=e=>{
+        e.stopPropagation();
+        deleteSchemaColumn(btn.dataset.key);
+      };
+    });
+  }
   $('studentBody').innerHTML='';
 
   students.forEach((s,idx)=>{
@@ -452,11 +494,35 @@ function renderAttrControls(){
     if(col.type==='ignore'){
       row.innerHTML=`<span>${esc(col.label)} <span class="attr-type">${col.type}</span><div class="help">${desc}</div></span><span class="help">—</span><span>0</span><span></span>`;
     }else{
-      row.innerHTML=`<span>${esc(col.label)} <span class="attr-type">${col.type}</span><div class="help">${desc}</div></span><input type="range" min="-20" max="20" step="1" value="${col.weight??8}"><span class="balance-value">${(col.weight??8)>0?'+':''}${col.weight??8}</span><span></span>`;
-      const range=row.querySelector('input[type=range]'); const val=row.querySelector('.balance-value');
-      range.oninput=()=>{
-        col.weight=+range.value;
-        val.textContent=(col.weight>0?'+':'')+col.weight;
+      const w=Number(col.weight??8);
+      row.innerHTML=`<span>${esc(col.label)} <span class="attr-type">${col.type}</span><div class="help">${desc}</div></span>
+        <input class="balance-range" type="range" min="-20" max="20" step="1" value="${w}">
+        <input class="balance-number" type="number" min="-20" max="20" step="1" value="${w}" aria-label="${esc(col.label)}">
+        <span></span>`;
+
+      const range=row.querySelector('.balance-range');
+      const number=row.querySelector('.balance-number');
+
+      const commitWeight=(raw)=>{
+        const v=Number(raw);
+        if(!Number.isFinite(v) || v < -20 || v > 20){
+          alert(tr('balanceRangeWarning'));
+          range.value=col.weight??8;
+          number.value=col.weight??8;
+          return;
+        }
+        col.weight=Math.round(v);
+        range.value=col.weight;
+        number.value=col.weight;
+      };
+
+      range.oninput=()=>commitWeight(range.value);
+      number.onchange=()=>commitWeight(number.value);
+      number.onkeydown=e=>{
+        if(e.key==='Enter'){
+          e.preventDefault();
+          number.blur();
+        }
       };
     }
     $('attrControls').appendChild(row);
@@ -1176,7 +1242,7 @@ function printGroupView(){
 function snapshot(){
   return {
     app:"Group Builder",
-    version:22.6,
+    version:23.0,
     savedAt:new Date().toISOString(),
     schema,
     students,
@@ -1433,7 +1499,7 @@ if($('clearLocalData')){
     uiSettings.deskColumns=4;
     uiSettings.cardScale=100;
     uiSettings.deskGap=8;
-    uiSettings.numericDisplay='bar';
+    uiSettings.numericDisplay='color';
     uiSettings.numericBalanceScale=30;
     uiSettings.categoryBalanceScale=500;
     uiSettings.numericClusterScale=30;

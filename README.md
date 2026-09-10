@@ -1,5 +1,9 @@
 # Group Builder
 
+**Launch the app:** https://shy-sgmt.github.io/group-builder/
+
+> No installation required. Open the link in a modern browser.
+
 Group Builder is a browser-based tool for creating balanced or intentionally clustered groups from member attributes.
 
 It is designed for schools, companies, interdisciplinary academic events, public-sector workshops, sports teams, and general project teams.
@@ -95,6 +99,21 @@ The app's **Template** button also follows the selected UI language.
 - [Version history](docs/CHANGELOG.md)
 - [日本語README](docs/README_JA.md)
 
+
+## Use Online
+
+Once GitHub Pages is enabled for this repository, Group Builder can be used directly in the browser:
+
+**https://shy-sgmt.github.io/group-builder/**
+
+Recommended GitHub Pages settings:
+
+- Source: `Deploy from a branch`
+- Branch: `main`
+- Folder: `/ (root)`
+
+After deployment, the link above opens `index.html` directly.
+
 ## Run locally
 
 Open `index.html` in a modern browser.
@@ -122,24 +141,3 @@ group-builder/
 ## License
 
 No license is included yet. Add a license such as MIT if you plan to publish the repository publicly.
-
-## v22.1
-
-- Fixed language switching initialization
-- `app.js` now loads after the full DOM
-- Re-rendered controls are translated again after every render
-- Removed legacy Advanced Optimization enable/disable state
-- Advanced Optimization remains permanently visible in General Settings
-
-## v22.3
-
-- Fixed the actual cause of Language switching failure
-- Restored missing `Export CSV` and `Print View` controls that were causing a JavaScript runtime error
-- Added a guarded fallback so missing optional buttons cannot stop app initialization
-- Added `General Settings → Clear Local Data`
-- Language selector now also has a direct `setLanguage()` fallback
-
-## v22.6
-
-- Renamed `Save` to `Save & Load`
-- Moved `Clear Local Data` into General Settings

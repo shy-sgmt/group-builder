@@ -1,5 +1,37 @@
 # Version History
 
+## v23.0
+
+- Auto Balance sliders remain unchanged
+- Balance values can also be entered directly as numbers
+- Direct input accepts only values from `-20` to `+20`
+- Out-of-range input shows a warning and restores the previous valid value
+
+
+
+## v22.9
+
+- Added column deletion in Members → Edit mode
+- ID/name column cannot be deleted
+- Delete controls are intentionally small and only visible while editing
+- Deleting the currently displayed attribute clears that display selection
+
+
+
+## v22.8
+
+- Moved version information out of the root README and into `docs/CHANGELOG.md`
+- Added a prominent GitHub Pages launch link to the README
+- Added GitHub Pages setup instructions
+
+
+
+## v22.7
+
+- Changed the default Numeric Display from Bar to Color
+
+
+
 ## v22.6
 
 - Renamed Save to Save & Load
