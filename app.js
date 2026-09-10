@@ -50,7 +50,7 @@ const I18N={
     display:'Display', displayHelp:'Choose one attribute to show on each card.',
     previewAsc:'Preview ↑', previewDesc:'Preview ↓', apply:'Apply', original:'Original', undo:'Undo',
     previewHelp:'Preview sorting by the displayed attribute. Apply commits the preview.',
-    displayRule:'Name + one selected attribute', memberSearch:'Search member...', clear:'Clear',
+    displayRule:'Name + one selected attribute', memberSearch:'Search member...', pairSearch:'Search name or reading...', clear:'Clear',
     pairRules:'Pair Rules', keepApart:'Keep apart', keepTogether:'Keep together', required:'Required',
     veryStrong:'Very strong', strong:'Strong', light:'Light', add:'Add',
     saveTitle:'Save & Load', saveAs:'Save As', openProject:'Open Project',
@@ -114,7 +114,7 @@ const I18N={
     display:'カード表示', displayHelp:'カードに表示する属性を1つ選びます。',
     previewAsc:'昇順プレビュー ↑', previewDesc:'降順プレビュー ↓', apply:'適用', original:'元に戻す', undo:'元に戻す',
     previewHelp:'表示中の属性で一時的に並び替えます。「適用」で現在の並びを確定します。',
-    displayRule:'名前 + 選択した属性を1つ表示', memberSearch:'メンバーを検索...', clear:'クリア',
+    displayRule:'名前 + 選択した属性を1つ表示', memberSearch:'メンバーを検索...', pairSearch:'名前・フリガナで検索...', clear:'クリア',
     pairRules:'ペアルール', keepApart:'別グループにする', keepTogether:'同じグループにする', required:'必須',
     veryStrong:'かなり強い', strong:'強い', light:'弱い', add:'追加',
     saveTitle:'保存・読み込み', saveAs:'名前を付けて保存', openProject:'プロジェクトを開く',
@@ -183,6 +183,7 @@ function setLanguage(lang){
   renderAll();
   applyUiSettings();
   applyLanguage();
+  updatePairSelects();
 }
 
 function applyLanguage(){
@@ -556,9 +557,47 @@ function renderAttrControls(){
   });
   renderDisplayFieldOptions();
 }
+function readingColumn(){
+  const labels=['フリガナ','ふりがな','かな','カナ','読み','よみ','furigana','kana','reading'];
+  return schema.find(c=>labels.includes(String(c.label||'').trim().toLowerCase()));
+}
+function studentReading(s){
+  const col=readingColumn();
+  return col ? String(s?.values?.[col.key]??'').trim() : '';
+}
+function sortedPairStudents(){
+  const ja=(uiSettings.language||'en')==='ja';
+  const collator=new Intl.Collator(ja?'ja':'en',{sensitivity:'base',numeric:true});
+  return validStudents().slice().sort((a,b)=>{
+    const aName=studentName(a), bName=studentName(b);
+    const aKey=ja ? (studentReading(a)||aName) : aName;
+    const bKey=ja ? (studentReading(b)||bName) : bName;
+    return collator.compare(aKey,bKey) || collator.compare(aName,bName);
+  });
+}
+function fillPairSelect(selectId,searchId){
+  const sel=$(selectId), search=$(searchId);
+  if(!sel)return;
+  const previous=sel.value;
+  const locale=(uiSettings.language||'en')==='ja'?'ja':'en';
+  const q=String(search?.value||'').trim().toLocaleLowerCase(locale);
+  const rows=sortedPairStudents().filter(s=>{
+    if(!q)return true;
+    const hay=(studentName(s)+' '+studentReading(s)).toLocaleLowerCase(locale);
+    return hay.includes(q);
+  });
+  sel.innerHTML=rows.map(s=>{
+    const reading=studentReading(s);
+    const label=((uiSettings.language||'en')==='ja' && reading)
+      ? `${studentName(s)}　${reading}`
+      : studentName(s);
+    return `<option value="${s.id}">${esc(label)}</option>`;
+  }).join('');
+  if(rows.some(s=>s.id===previous))sel.value=previous;
+}
 function updatePairSelects(){
-  const opts=validStudents().map(s=>`<option value="${s.id}">${esc(studentName(s))}</option>`).join('');
-  $('pairA').innerHTML=opts;$('pairB').innerHTML=opts;
+  fillPairSelect('pairA','pairSearchA');
+  fillPairSelect('pairB','pairSearchB');
 }
 function renderPairRules(){
   $('pairList').innerHTML='';
@@ -721,6 +760,8 @@ $('addStudent').onclick=()=>{
   students.push({id:uid('s'),values});renderStudents();
   applyLanguage();
 };
+if($('pairSearchA')) $('pairSearchA').addEventListener('input',()=>fillPairSelect('pairA','pairSearchA'));
+if($('pairSearchB')) $('pairSearchB').addEventListener('input',()=>fillPairSelect('pairB','pairSearchB'));
 $('addPair').onclick=()=>{
   const a=$('pairA').value,b=$('pairB').value;if(!a||!b||a===b)return toast(tr('chooseTwo'));
   pairRules.push({id:uid('r'),a,b,type:$('pairType').value,weight:+$('pairWeight').value});
@@ -1318,7 +1359,7 @@ function printGroupView(){
 function snapshot(){
   return {
     app:"Group Builder",
-    version:23.5,
+    version:23.6,
     savedAt:new Date().toISOString(),
     schema,
     students,

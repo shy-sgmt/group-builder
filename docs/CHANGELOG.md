@@ -1,5 +1,17 @@
 # Version History
 
+## v23.6
+
+- Added search boxes to both Pair Rules member selectors
+- English member lists are sorted A–Z
+- Japanese member lists use a detected フリガナ / かな / 読み column for あいうえお ordering
+- Search matches both member names and readings
+- Falls back to Japanese locale name sorting when no reading column exists
+- Added `フリガナ` (`ignore`) to all Japanese templates
+- Added readings for all 105 students in the Japanese school template
+
+
+
 ## v23.5
 
 - Changed slot controls to an equal 50/50 layout

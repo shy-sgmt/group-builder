@@ -1296,3 +1296,10 @@ body.members-editing .member-actions{display:flex!important}
   justify-content:center;
   text-align:center;
 }
+
+/* v23.6 searchable Pair Rules */
+.pair-picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pair-picker{display:grid;gap:5px;min-width:0}
+.pair-picker input,.pair-picker select{width:100%;min-width:0;box-sizing:border-box}
+.pair-picker input{height:28px}
+@media (max-width:720px){.pair-picker-grid{grid-template-columns:1fr}}

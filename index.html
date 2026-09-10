@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Group Builder v23.5</title>
+<title>Group Builder v23.6</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -76,7 +76,16 @@
 
   <div id="pairRulesSection" class="section ui-section pair-rules-section">
     <h3 data-i18n="pairRules">Pair Rules</h3>
-    <div class="row"><select id="pairA" style="flex:1"></select><select id="pairB" style="flex:1"></select></div>
+    <div class="pair-picker-grid">
+      <div class="pair-picker">
+        <input id="pairSearchA" type="search" data-i18n-placeholder="pairSearch" placeholder="Search name or reading...">
+        <select id="pairA"></select>
+      </div>
+      <div class="pair-picker">
+        <input id="pairSearchB" type="search" data-i18n-placeholder="pairSearch" placeholder="Search name or reading...">
+        <select id="pairB"></select>
+      </div>
+    </div>
     <div class="row" style="margin-top:6px">
       <select id="pairType" style="flex:1"><option value="apart" data-i18n="keepApart">Keep apart</option><option value="together" data-i18n="keepTogether">Keep together</option></select>
       <select id="pairWeight"><option value="10000" data-i18n="required">Required</option><option value="1000" data-i18n="veryStrong">Very strong</option><option value="200" selected data-i18n="strong">Strong</option><option value="50" data-i18n="light">Light</option></select>
