@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Group Builder v22.6</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand-row">
+    <div class="brand">Group Builder</div>
+    <button id="settingsBtn" class="settings-btn" title="Settings" aria-label="Settings">⚙</button>
+  </div>
+  <div class="sub" data-i18n="subtitle">Constraint-aware group formation</div>
+
+  <div class="section ui-section">
+    <h3 data-i18n="importTitle">Import</h3>
+    
+    
+
+<input id="fileInput" type="file" accept=".xlsx,.xls,.csv" style="display:none">
+    <div class="row">
+      <button id="pickFile" style="flex:1" data-i18n="openFile">📂 Open Excel / CSV</button>
+      <button id="template" class="small" data-i18n="templateBtn">Template</button>
+    </div>
+    <div id="fileName" class="help" style="margin-top:6px" data-i18n="noFile">No file selected</div>
+    <div class="help" style="margin-top:6px">
+      <span data-i18n="importHelp">Row 1 = field names, Row 2 = types, Row 3+ = data.</span><br>
+      <span data-i18n="typesLabel">Types:</span> <b>id / category / numeric / ordinal / boolean / ignore</b>.
+    </div>
+  </div>
+
+  <div class="section ui-section">
+    <div class="section-title-row members-head">
+      <h3 data-i18n="members">Members</h3><div class="help section-help" data-i18n="membersHelp">View mode for review. Use Edit to modify data.</div>
+      <div class="member-mode-controls">
+        <div class="segmented" role="group" aria-label="Member table mode">
+          <button id="viewModeBtn" class="small active" data-i18n="view">View</button>
+          <button id="editModeBtn" class="small" data-i18n="edit">Edit</button>
+        </div>
+        <button id="addFieldBtn" class="small edit-only" data-i18n="addField">+ Field</button>
+      </div>
+    </div>
+    <div class="tablewrap"><table class="student-table"><thead id="studentHead"></thead><tbody id="studentBody"></tbody></table></div>
+    <div class="row edit-only member-actions" style="margin-top:7px"><button id="addStudent" style="flex:1" data-i18n="addMember">+ Member</button><button id="sample" class="small" data-i18n="sampleBtn">Sample</button></div>
+  </div>
+
+  <div class="section ui-section">
+    <h3 data-i18n="autoBalance">Auto Balance</h3>
+    <div id="attrControls"></div>
+  </div>
+
+  <div class="section ui-section">
+    <h3 data-i18n="display">Display</h3><div class="help section-help" data-i18n="displayHelp">Choose one attribute to show on each card.</div>
+    <select id="displayField" style="width:100%"></select>
+    <div class="row" style="margin-top:7px">
+      <button id="sortAsc" class="small" style="flex:1" data-i18n="previewAsc">Preview ↑</button>
+      <button id="sortDesc" class="small" style="flex:1" data-i18n="previewDesc">Preview ↓</button>
+      <button id="applySortPreview" class="small primary-soft" style="flex:1" data-i18n="apply">Apply</button>
+      <button id="clearSortPreview" class="small" style="flex:1" data-i18n="original">Original</button>
+      <button id="undoBtn" class="small" style="flex:1" data-i18n="undo">Undo</button>
+    </div>
+    <div class="help" style="margin-top:5px">
+      <span data-i18n="previewHelp">Preview sorting by the displayed attribute. Apply commits the preview.</span>
+    </div>
+    <div class="help" style="margin-top:6px"><span data-i18n="displayRule">Name + one selected attribute</span></div>
+    <div id="displayLegend" class="display-legend"></div>
+    <div class="search-tools">
+      <input id="memberSearch" type="search" placeholder="Search member..." data-i18n-placeholder="memberSearch">
+      <button id="clearSearch" class="small" data-i18n="clear">Clear</button>
+    </div>
+  </div>
+
+  <div id="pairRulesSection" class="section ui-section pair-rules-section">
+    <h3 data-i18n="pairRules">Pair Rules</h3>
+    <div class="row"><select id="pairA" style="flex:1"></select><select id="pairB" style="flex:1"></select></div>
+    <div class="row" style="margin-top:6px">
+      <select id="pairType" style="flex:1"><option value="apart" data-i18n="keepApart">Keep apart</option><option value="together" data-i18n="keepTogether">Keep together</option></select>
+      <select id="pairWeight"><option value="10000" data-i18n="required">Required</option><option value="1000" data-i18n="veryStrong">Very strong</option><option value="200" selected data-i18n="strong">Strong</option><option value="50" data-i18n="light">Light</option></select>
+      <button id="addPair" class="small" data-i18n="add">Add</button>
+    </div>
+    <div id="pairList"></div>
+  </div>
+
+  <div class="section ui-section">
+    <h3 data-i18n="saveTitle">Save & Load</h3>
+    <input id="projectFile" type="file" accept=".json,.classbuilder" style="display:none">
+    <div class="row">
+      <button id="saveAs" style="flex:1" data-i18n="saveAs">Save As</button>
+      <button id="openProject" style="flex:1" data-i18n="openProject">Open Project</button>
+    </div>
+    <div class="help" style="margin-top:6px"><span data-i18n="saveHelp">Save members, rules, group assignments, positions, and locks in one project file.</span></div>
+    <div class="row" style="margin-top:7px">
+      <button id="exportCsv" style="flex:1" data-i18n="exportCsv">Export CSV</button>
+      <button id="printView" style="flex:1" data-i18n="printView">Print View</button>
+    </div>
+  </div>
+
+  <div id="settingsPanel" class="settings-panel" aria-hidden="true">
+    <div class="settings-head">
+      <div>
+        <div class="settings-title" data-i18n="general">General Settings</div>
+        <div class="help" data-i18n="generalHelp">Appearance, grouping, and optimization</div>
+      </div>
+      <button id="settingsClose" class="small">×</button>
+    </div>
+
+    
+    <div class="settings-group">
+      <label class="settings-label" data-i18n="language">Language</label>
+      <select id="languageSelect" onchange="setLanguage(this.value)">
+        <option value="en" data-i18n="english">English</option>
+        <option value="ja" data-i18n="japanese">Japanese</option>
+      </select>
+    </div>
+<div class="settings-group">
+      <label class="settings-label" data-i18n="theme">Theme</label>
+      <select id="themeSelect">
+        <option value="dark" data-i18n="themeDark">Dark</option>
+        <option value="light" data-i18n="themeLight">Light</option>
+        <option value="system" data-i18n="themeSystem">System</option>
+        <option value="graphite" data-i18n="themeGraphite">Graphite</option>
+        <option value="navy" data-i18n="themeNavy">Navy</option>
+        <option value="paper" data-i18n="themePaper">Paper</option>
+        <option value="forest" data-i18n="themeForest">Forest</option>
+        <option value="warm" data-i18n="themeWarm">Warm</option>
+      </select>
+    </div>
+
+    
+    
+    <div class="settings-group">
+      <label class="settings-label" data-i18n="advancedOptimization">Advanced Optimization</label>
+      <div id="advancedOptimizationPanel" class="advanced-opt-panel always-open">
+        <div class="help" style="margin-bottom:8px">
+          <span data-i18n="advancedHelp">Usually leave these at the defaults.</span>
+        </div>
+
+        <label class="settings-label" data-i18n="numericBalance">Numeric · Balance</label>
+        <div class="advanced-opt-row">
+          <input id="numericBalanceScale" type="range" min="1" max="100" step="1">
+          <input id="numericBalanceScaleNumber" type="number" min="1" max="100" step="1">
+        </div>
+
+        <label class="settings-label" data-i18n="categoryBalance">Category · Balance</label>
+        <div class="advanced-opt-row">
+          <input id="categoryBalanceScale" type="range" min="50" max="1000" step="10">
+          <input id="categoryBalanceScaleNumber" type="number" min="50" max="1000" step="10">
+        </div>
+
+        <label class="settings-label" data-i18n="numericOrdinalCluster">Numeric / Ordinal · Cluster</label>
+        <div class="advanced-opt-row">
+          <input id="numericClusterScale" type="range" min="1" max="100" step="1">
+          <input id="numericClusterScaleNumber" type="number" min="1" max="100" step="1">
+        </div>
+
+        <label class="settings-label" data-i18n="categoryBooleanCluster">Category / Boolean · Cluster</label>
+        <div class="advanced-opt-row">
+          <input id="categoryClusterScale" type="range" min="50" max="1000" step="10">
+          <input id="categoryClusterScaleNumber" type="number" min="50" max="1000" step="10">
+        </div>
+
+        <button id="resetOptimizationScales" class="small" type="button" data-i18n="resetDefaults">Reset defaults</button>
+
+        <div class="help" style="margin-top:8px">
+          <span data-i18n="advancedDefaults">Default: Numeric 30 / Category 500</span>
+        </div>
+      </div>
+    </div>
+
+
+
+<div class="settings-group">
+      <label class="settings-label" data-i18n="numericDisplay">Numeric display</label>
+      <select id="numericDisplay">
+        <option value="bar" data-i18n="bar">Bar</option>
+        <option value="color" data-i18n="color">Color</option>
+      </select>
+      <div class="help" style="margin-top:5px"><span data-i18n="numericDisplayHelp">Choose how numeric attributes are visualized.</span></div>
+    </div>
+
+
+    
+    <div class="settings-group">
+      <label class="settings-toggle-row">
+        <span>
+          <strong data-i18n="pairRules">Pair rules</strong>
+          <span class="help"><span data-i18n="pairRulesHelp">Enable rules that keep selected members together or apart</span></span>
+        </span>
+        <input id="pairRulesEnabled" type="checkbox">
+      </label>
+    </div>
+
+
+    
+    <div class="settings-group settings-subsection">
+      <div class="settings-subtitle" data-i18n="groupSettings">Group Settings</div>
+
+      <label class="settings-label" data-i18n="numberOfGroups">Number of groups</label>
+      <input id="classCount" type="number" min="1" max="99" value="3" step="1">
+
+      <label class="settings-label" style="margin-top:10px" data-i18n="allowedSizeDifference">Allowed size difference</label>
+      <select id="sizeDiff"><option>0</option><option selected>1</option><option>2</option></select>
+
+      <div class="help" style="margin-top:6px">
+        <span data-i18n="groupSettingsHelp">Usually configured before building groups.</span>
+      </div>
+    </div>
+
+    <div class="settings-group">
+      <label class="settings-label" data-i18n="groupNames">Group names</label>
+      <div id="groupNameEditor" class="group-name-editor"></div>
+      <div class="help" style="margin-top:5px"><span data-i18n="groupNamesHelp">Examples: Team A / Group Blue / Sales A</span></div>
+    </div>
+
+<div class="settings-group">
+      <label class="settings-label" data-i18n="columnsPerGroup">Columns per group</label>
+      <select id="deskColumns">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+      </select>
+    </div>
+
+    <div class="settings-group">
+      <label class="settings-label"><span data-i18n="cardSize">Card size</span> <span id="cardScaleValue">100%</span></label>
+      <input id="cardScale" type="range" min="70" max="135" value="100">
+    </div>
+
+    <div class="settings-group">
+      <label class="settings-label"><span data-i18n="cardGap">Card gap</span> <span id="deskGapValue">8px</span></label>
+      <input id="deskGap" type="range" min="2" max="20" value="8">
+    </div>
+  
+    <div class="settings-group danger-zone">
+      <label class="settings-label" data-i18n="localData">Local Data</label>
+      <div class="help" data-i18n="localDataHelp">
+        Clears locally saved UI settings from this browser. Project files and templates are not deleted.
+      </div>
+      <button id="clearLocalData" class="small danger-button" type="button" data-i18n="clearLocalData">
+        Clear Local Data
+      </button>
+    </div>
+  </div>
+
+</aside>
+
+<div id="splitter" class="splitter"></div>
+
+<main class="main">
+  <div class="toolbar">
+    <button id="build" class="primary">⚡ <span data-i18n="groupBuild">GROUP BUILD</span></button>
+    <button id="clear" data-i18n="clearLayout">Clear layout</button>
+    <div id="computeState" class="compute-state" hidden>
+      <span id="computeText" data-i18n="computingEllipsis">Computing…</span>
+      <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+    </div>
+    <div class="spacer"></div>
+    <div id="score" class="score"></div>
+    <div id="status" class="help"></div>
+  </div>
+  <div id="classrooms" class="classrooms horizontal"></div>
+</main>
+</div>
+<div id="toast" class="toast"></div>
+
+
+
+<div id="fieldModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" data-i18n="addFieldTitle">Add Field</div>
+        <div class="help" data-i18n="addFieldHelp">Add a new column to the member table.</div>
+      </div>
+      <button id="fieldModalClose" class="small">×</button>
+    </div>
+
+    <label class="modal-label" data-i18n="fieldName">Field name</label>
+    <input id="newFieldName" type="text" placeholder="Examples: Height, Department, Years of experience" data-i18n-placeholder="fieldPlaceholder">
+
+    <label class="modal-label" data-i18n="type">Type</label>
+    <select id="newFieldType">
+      <option value="category" data-i18n="typeCategory">category — categorical</option>
+      <option value="numeric" data-i18n="typeNumeric">numeric — continuous numeric</option>
+      <option value="ordinal" data-i18n="typeOrdinal">ordinal — ordered scale</option>
+      <option value="boolean" data-i18n="typeBoolean">boolean — Yes / No</option>
+      <option value="ignore" data-i18n="typeIgnore">ignore — reference only</option>
+    </select>
+
+    <div id="fieldTypeHelp" class="field-type-help"></div>
+
+    <div class="row" style="margin-top:14px">
+      <button id="fieldModalCancel" style="flex:1" data-i18n="cancel">Cancel</button>
+      <button id="fieldModalAdd" class="primary-soft" style="flex:1" data-i18n="addField">Add Field</button>
+    </div>
+  </div>
+</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
