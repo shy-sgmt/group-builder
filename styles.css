@@ -1170,3 +1170,71 @@ body.members-editing .member-actions{display:flex!important}
   outline:2px solid currentColor;
   outline-offset:1px;
 }
+
+/* v23.1 — group controls live with the group cards */
+.group-title-wrap{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  flex:1;
+}
+.group-title-input{
+  width:100%;
+  min-width:70px;
+  max-width:260px;
+  padding:3px 6px;
+  border:1px solid transparent;
+  border-radius:6px;
+  background:transparent;
+  color:inherit;
+  font:inherit;
+  font-weight:800;
+  line-height:1.2;
+  box-sizing:border-box;
+}
+.group-title-input:hover{
+  border-color:var(--line);
+}
+.group-title-input:focus{
+  border-color:currentColor;
+  background:rgba(127,127,127,.08);
+  outline:none;
+}
+.group-remove-btn{
+  width:22px;
+  height:22px;
+  min-width:22px;
+  padding:0;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:inherit;
+  opacity:.38;
+  font-size:16px;
+  line-height:22px;
+  cursor:pointer;
+}
+.group-remove-btn:hover,
+.group-remove-btn:focus{
+  opacity:1;
+  background:rgba(127,127,127,.16);
+}
+.group-remove-btn:disabled{
+  opacity:.12;
+  cursor:not-allowed;
+}
+.class-head{
+  gap:8px;
+}
+
+/* v23.2 — right-pane layout repair */
+.toolbar{
+  flex-wrap:wrap;
+}
+.main{
+  min-width:0;
+}
+.classrooms{
+  min-width:0;
+}

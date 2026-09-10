@@ -1,5 +1,25 @@
 # Version History
 
+## v23.2
+
+- Fixed malformed HTML left behind after moving Group Settings out of General
+- Removed stale Group Names helper text
+- Prevented the right-side workspace from dropping below the sidebar
+- Made the right toolbar wrap safely on narrow windows
+
+
+
+## v23.1
+
+- Moved group management from General Settings to the right-side group view
+- Group names can now be edited directly in each group header
+- Added a delete button to each group header
+- Added `+ Add Group` to the right-side toolbar
+- Removed group count and group-name editors from General Settings
+- Kept Allowed size difference in General Settings as a global optimization option
+
+
+
 ## v23.0
 
 - Auto Balance sliders remain unchanged

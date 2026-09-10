@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Group Builder v23.0</title>
+<title>Group Builder v23.2</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -194,27 +194,14 @@
       </label>
     </div>
 
-
-    
-    <div class="settings-group settings-subsection">
-      <div class="settings-subtitle" data-i18n="groupSettings">Group Settings</div>
-
-      <label class="settings-label" data-i18n="numberOfGroups">Number of groups</label>
-      <input id="classCount" type="number" min="1" max="99" value="3" step="1">
-
-      <label class="settings-label" style="margin-top:10px" data-i18n="allowedSizeDifference">Allowed size difference</label>
+    <div class="settings-group">
+      <label class="settings-label" data-i18n="allowedSizeDifference">Allowed size difference</label>
       <select id="sizeDiff"><option>0</option><option selected>1</option><option>2</option></select>
-
-      <div class="help" style="margin-top:6px">
-        <span data-i18n="groupSettingsHelp">Usually configured before building groups.</span>
+      <div class="help" style="margin-top:6px" data-i18n="sizeDiffHelp">
+        Maximum allowed difference in member count between groups.
       </div>
     </div>
 
-    <div class="settings-group">
-      <label class="settings-label" data-i18n="groupNames">Group names</label>
-      <div id="groupNameEditor" class="group-name-editor"></div>
-      <div class="help" style="margin-top:5px"><span data-i18n="groupNamesHelp">Examples: Team A / Group Blue / Sales A</span></div>
-    </div>
 
 <div class="settings-group">
       <label class="settings-label" data-i18n="columnsPerGroup">Columns per group</label>
@@ -255,9 +242,11 @@
 <div id="splitter" class="splitter"></div>
 
 <main class="main">
+  <input id="classCount" type="hidden" value="3">
   <div class="toolbar">
     <button id="build" class="primary">⚡ <span data-i18n="groupBuild">GROUP BUILD</span></button>
     <button id="clear" data-i18n="clearLayout">Clear layout</button>
+    <button id="addGroup" class="primary-soft" type="button" data-i18n="addGroup">+ Add Group</button>
     <div id="computeState" class="compute-state" hidden>
       <span id="computeText" data-i18n="computingEllipsis">Computing…</span>
       <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>

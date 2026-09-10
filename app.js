@@ -76,7 +76,8 @@ const I18N={
     allowedSizeDifference:'Allowed size difference', groupSettingsHelp:'Usually configured before building groups.',
     groupNames:'Group names', groupNamesHelp:'Examples: Team A / Group Blue / Sales A',
     columnsPerGroup:'Columns per group', cardSize:'Card size', cardGap:'Card gap',
-    groupBuild:'GROUP BUILD', clearLayout:'Clear layout', computingEllipsis:'Computing…',
+    groupBuild:'GROUP BUILD', clearLayout:'Clear layout', addGroup:'+ Add Group', computingEllipsis:'Computing…',
+    renameGroup:'Rename group', sizeDiffHelp:'Maximum allowed difference in member count between groups.',
     addFieldTitle:'Add Field', addFieldHelp:'Add a new column to the member table.',
     fieldName:'Field name', fieldPlaceholder:'Examples: Height, Department, Years of experience', type:'Type',
     typeCategory:'category — categorical', typeNumeric:'numeric — continuous numeric',
@@ -139,7 +140,8 @@ const I18N={
     allowedSizeDifference:'許容する人数差', groupSettingsHelp:'通常はグループ作成前に設定します。',
     groupNames:'グループ名', groupNamesHelp:'例: Aチーム / 青グループ / 営業A',
     columnsPerGroup:'グループ内の列数', cardSize:'カードサイズ', cardGap:'カード間隔',
-    groupBuild:'グループ作成', clearLayout:'配置をクリア', computingEllipsis:'計算中…',
+    groupBuild:'グループ作成', clearLayout:'配置をクリア', addGroup:'+ グループを追加', computingEllipsis:'計算中…',
+    renameGroup:'グループ名を変更', sizeDiffHelp:'グループ間で許容する人数差の最大値です。',
     addFieldTitle:'項目を追加', addFieldHelp:'メンバー表に新しい列を追加します。',
     fieldName:'項目名', fieldPlaceholder:'例: 身長、部署、経験年数', type:'型',
     typeCategory:'category — カテゴリ', typeNumeric:'numeric — 連続数値',
@@ -321,6 +323,23 @@ function groupId(c){
   ensureGroupsConfig();
   return groupsConfig[c]?.id;
 }
+
+function addGroup(){
+  ensureGroupsConfig();
+  pushHistory?.();
+
+  const newIndex=groupsConfig.length;
+  groupsConfig.push({
+    id:makeGroupId(),
+    name:`Group ${newIndex+1}`
+  });
+
+  $('classCount').value=groupsConfig.length;
+  classSlots[newIndex]=classSlots[newIndex]||[];
+  renderClasses();
+  updateStatus();
+}
+
 function renderGroupNameEditor(){
   const el=$('groupNameEditor');
   if(!el)return;
@@ -357,35 +376,43 @@ function removeGroup(index){
   }
 
   const removed=groupsConfig[index];
-  const hasMembers=Object.values(assignment).some(c=>c===index);
-  if(hasMembers){
+  if(!removed)return;
+
+  const removedMemberIds=Object.entries(assignment)
+    .filter(([,c])=>c===index)
+    .map(([id])=>id);
+
+  if(removedMemberIds.length){
     const ok=confirm(`「${removed.name}」: ${tr('deleteGroupConfirm')}`);
     if(!ok)return;
   }
 
   pushHistory?.();
 
+  const oldCount=groupsConfig.length;
   groupsConfig.splice(index,1);
 
-  // Reindex assignment because layout arrays are index-based internally.
   const nextAssign={};
   for(const [id,c] of Object.entries(assignment)){
-    if(c===index) continue;
+    if(c===index){
+      fixedStudents.delete(id);
+      continue;
+    }
     nextAssign[id]=c>index?c-1:c;
   }
   assignment=nextAssign;
 
   const nextSlots={};
-  for(let c=0;c<classCount();c++){
-    if(c===index)continue;
-    const newIndex=c>index?c-1:c;
-    nextSlots[newIndex]=classSlots[c]||[];
+  for(let oldIndex=0;oldIndex<oldCount;oldIndex++){
+    if(oldIndex===index)continue;
+    const newIndex=oldIndex>index?oldIndex-1:oldIndex;
+    nextSlots[newIndex]=(classSlots[oldIndex]||[]).filter(id=>!removedMemberIds.includes(id));
   }
   classSlots=nextSlots;
 
   $('classCount').value=groupsConfig.length;
-  renderGroupNameEditor();
-  renderAll();
+  renderClasses();
+  updateStatus();
   toast(tr('groupDeleted'));
 }
 
@@ -1063,8 +1090,8 @@ async function optimize(){
   }
 }
 $('build').onclick=optimize;
+if($('addGroup')) $('addGroup').onclick=addGroup;
 $('clear').onclick=()=>{assignment={};fixedStudents.clear();classSlots={};$('score').textContent='';renderClasses()};
-$('classCount').onchange=()=>{ensureGroupsConfig();renderGroupNameEditor();assignment={};fixedStudents.clear();classSlots={};renderClasses()};
 function pairInfo(id){
   return pairRules.filter(r=>r.a===id||r.b===id).map(r=>{
     const other=r.a===id?r.b:r.a,same=assignment[id]!==undefined&&assignment[id]===assignment[other];
@@ -1138,7 +1165,37 @@ function renderClasses(){
   applyDeskLayout(); ensureSlots(); reconcileSlots(); adaptiveLayout(); $('classrooms').innerHTML='';
   for(let c=0;c<classCount();c++){
     const g=members(c),room=document.createElement('section');room.className='classroom';
-    room.innerHTML=`<div class="class-head"><div class="class-title">${esc(groupName(c))}</div><div class="class-meta">${g.length} ${tr("membersWord")} / ${classSlots[c].length} ${tr("slotsWord")}</div></div><div class="desks"></div><button class="add-slot">${tr('addSlot')}</button><div class="summary"></div>`;
+    room.innerHTML=`<div class="class-head">
+      <div class="group-title-wrap">
+        <input class="group-title-input" value="${esc(groupName(c))}" aria-label="${tr('renameGroup')}" title="${tr('renameGroup')}">
+        <button class="group-remove-btn" type="button" title="${tr('deleteGroup')}" aria-label="${tr('deleteGroup')}" ${classCount()<=1?'disabled':''}>×</button>
+      </div>
+      <div class="class-meta">${g.length} ${tr("membersWord")} / ${classSlots[c].length} ${tr("slotsWord")}</div>
+    </div>
+    <div class="desks"></div>
+    <button class="add-slot">${tr('addSlot')}</button>
+    <div class="summary"></div>`;
+
+    const titleInput=room.querySelector('.group-title-input');
+    titleInput.oninput=()=>{
+      const gcfg=groupsConfig[c];
+      if(gcfg)gcfg.name=titleInput.value;
+    };
+    titleInput.onblur=()=>{
+      if(!titleInput.value.trim()){
+        const fallback=`Group ${c+1}`;
+        titleInput.value=fallback;
+        if(groupsConfig[c])groupsConfig[c].name=fallback;
+      }
+    };
+    titleInput.onkeydown=e=>{
+      if(e.key==='Enter'){
+        e.preventDefault();
+        titleInput.blur();
+      }
+    };
+
+    room.querySelector('.group-remove-btn').onclick=()=>removeGroup(c);
     room.querySelector('.add-slot').onclick=()=>{classSlots[c].push('');renderClasses()};
     room.querySelector('.summary').textContent=groupSummaryHTML(c);
     const desks=room.querySelector('.desks');
@@ -1242,7 +1299,7 @@ function printGroupView(){
 function snapshot(){
   return {
     app:"Group Builder",
-    version:23.0,
+    version:23.2,
     savedAt:new Date().toISOString(),
     schema,
     students,
