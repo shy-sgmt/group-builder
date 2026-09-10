@@ -1238,3 +1238,21 @@ body.members-editing .member-actions{display:flex!important}
 .classrooms{
   min-width:0;
 }
+
+/* v23.3 — slot controls */
+.slot-controls{
+  display:flex;
+  gap:6px;
+  align-items:center;
+  margin-top:6px;
+}
+.slot-controls button{
+  flex:0 0 auto;
+}
+.remove-slot{
+  opacity:.72;
+}
+.remove-slot:hover,
+.remove-slot:focus{
+  opacity:1;
+}

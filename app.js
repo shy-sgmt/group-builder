@@ -91,7 +91,7 @@ const I18N={
     manyGroupsConfirm:'Many groups may result in single-member groups. Continue?',
     optimizing:'Optimizing…', searching:'Searching…', built:'Groups built.',
     hardViolation:'Some required constraints remain unsatisfied.', computing:'Computing',
-    addSlot:'+ Add slot', unlock:'Unlock', lock:'Lock', fixedLabel:'Fixed',
+    addSlot:'+ Add slot', removeSlot:'− Remove slot', noEmptySlot:'No empty slot to remove.', unlock:'Unlock', lock:'Lock', fixedLabel:'Fixed',
     projectOpenFailed:'Could not open the project file.', fieldNameRequired:'Enter a field name.',
     duplicateField:'A field with the same name already exists.', fieldAdded:'Field added.',
     deleteColumn:'Delete column',
@@ -155,7 +155,7 @@ const I18N={
     manyGroupsConfirm:'1人だけのグループが多くなる可能性があります。続けますか？',
     optimizing:'最適化中…', searching:'探索中…', built:'グループを作成しました。',
     hardViolation:'必須条件の違反が残っています。', computing:'計算中',
-    addSlot:'+ 枠を追加', unlock:'固定解除', lock:'固定', fixedLabel:'固定',
+    addSlot:'+ 枠を追加', removeSlot:'− 枠を削除', noEmptySlot:'削除できる空き枠がありません。', unlock:'固定解除', lock:'固定', fixedLabel:'固定',
     projectOpenFailed:'プロジェクトファイルを開けませんでした。', fieldNameRequired:'項目名を入力してください。',
     duplicateField:'同じ項目名があります。', fieldAdded:'項目を追加しました。',
     deleteColumn:'列を削除',
@@ -1173,7 +1173,10 @@ function renderClasses(){
       <div class="class-meta">${g.length} ${tr("membersWord")} / ${classSlots[c].length} ${tr("slotsWord")}</div>
     </div>
     <div class="desks"></div>
-    <button class="add-slot">${tr('addSlot')}</button>
+    <div class="slot-controls">
+      <button class="add-slot">${tr('addSlot')}</button>
+      <button class="remove-slot">${tr('removeSlot')}</button>
+    </div>
     <div class="summary"></div>`;
 
     const titleInput=room.querySelector('.group-title-input');
@@ -1197,6 +1200,22 @@ function renderClasses(){
 
     room.querySelector('.group-remove-btn').onclick=()=>removeGroup(c);
     room.querySelector('.add-slot').onclick=()=>{classSlots[c].push('');renderClasses()};
+    room.querySelector('.remove-slot').onclick=()=>{
+      const slots=classSlots[c]||[];
+      let emptyIndex=-1;
+      for(let i=slots.length-1;i>=0;i--){
+        if(!slots[i]){
+          emptyIndex=i;
+          break;
+        }
+      }
+      if(emptyIndex<0){
+        toast(tr('noEmptySlot'));
+        return;
+      }
+      slots.splice(emptyIndex,1);
+      renderClasses();
+    };
     room.querySelector('.summary').textContent=groupSummaryHTML(c);
     const desks=room.querySelector('.desks');
     previewSlotsForGroup(c).forEach((sid,i)=>{
@@ -1299,7 +1318,7 @@ function printGroupView(){
 function snapshot(){
   return {
     app:"Group Builder",
-    version:23.2,
+    version:23.3,
     savedAt:new Date().toISOString(),
     schema,
     students,

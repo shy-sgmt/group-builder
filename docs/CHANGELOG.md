@@ -1,5 +1,14 @@
 # Version History
 
+## v23.3
+
+- Added `− Remove Slot` next to `+ Add Slot`
+- Remove Slot deletes the last available empty slot in that group
+- Occupied slots are never removed automatically
+- If no empty slot exists, the app shows a warning
+
+
+
 ## v23.2
 
 - Fixed malformed HTML left behind after moving Group Settings out of General
