@@ -1,5 +1,12 @@
 # Version History
 
+## v23.4
+
+- Fixed `Remove Slot` placement
+- `+ Add Slot` and `− Remove Slot` now stay directly side by side
+
+
+
 ## v23.3
 
 - Added `− Remove Slot` next to `+ Add Slot`

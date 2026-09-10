@@ -1256,3 +1256,21 @@ body.members-editing .member-actions{display:flex!important}
 .remove-slot:focus{
   opacity:1;
 }
+
+/* v23.4 — keep Add Slot and Remove Slot side by side */
+.slot-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:9px;
+  width:100%;
+}
+.slot-controls .add-slot,
+.slot-controls .remove-slot{
+  width:auto !important;
+  margin-top:0 !important;
+  flex:0 0 auto !important;
+}
+.slot-controls .add-slot{
+  border-style:dashed;
+}

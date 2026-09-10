@@ -1318,7 +1318,7 @@ function printGroupView(){
 function snapshot(){
   return {
     app:"Group Builder",
-    version:23.3,
+    version:23.4,
     savedAt:new Date().toISOString(),
     schema,
     students,
