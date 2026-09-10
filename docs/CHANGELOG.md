@@ -1,5 +1,14 @@
 # Version History
 
+## v23.5
+
+- Changed slot controls to an equal 50/50 layout
+- `+ Add Slot` is on the left
+- `− Remove Slot` is on the right
+- Both buttons now use the same width and height
+
+
+
 ## v23.4
 
 - Fixed `Remove Slot` placement

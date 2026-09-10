@@ -1274,3 +1274,25 @@ body.members-editing .member-actions{display:flex!important}
 .slot-controls .add-slot{
   border-style:dashed;
 }
+
+/* v23.5 — equal slot action buttons */
+.slot-controls{
+  display:grid !important;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  width:100%;
+  margin-top:9px;
+}
+.slot-controls .add-slot,
+.slot-controls .remove-slot{
+  width:100% !important;
+  min-width:0;
+  height:32px;
+  margin:0 !important;
+  padding:0 10px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
