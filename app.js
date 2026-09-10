@@ -287,7 +287,7 @@ function setSettingsOpen(open){
 
 let schema=[
   {key:'name',label:'Name',type:'id',weight:0,show:true},
-  {key:'gender',label:'Gender',type:'category',weight:8,show:true}
+  {key:'category',label:'Category',type:'category',weight:8,show:true}
 ];
 let students=[];
 let pairRules=[];
@@ -1359,7 +1359,7 @@ function printGroupView(){
 function snapshot(){
   return {
     app:"Group Builder",
-    version:23.6,
+    version:23.8,
     savedAt:new Date().toISOString(),
     schema,
     students,

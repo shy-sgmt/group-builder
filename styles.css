@@ -1303,3 +1303,151 @@ body.members-editing .member-actions{display:flex!important}
 .pair-picker input,.pair-picker select{width:100%;min-width:0;box-sizing:border-box}
 .pair-picker input{height:28px}
 @media (max-width:720px){.pair-picker-grid{grid-template-columns:1fr}}
+
+
+/* v23.7 — mobile-only responsive layout.
+   Desktop layout is intentionally unchanged. */
+@media (max-width: 768px){
+  html, body{
+    overflow-x:hidden;
+  }
+
+  .app{
+    display:block !important;
+    min-width:0 !important;
+  }
+
+  aside.sidebar,
+  .sidebar{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:auto !important;
+    position:relative !important;
+  }
+
+  .splitter{
+    display:none !important;
+  }
+
+  .main{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    padding-left:8px !important;
+    padding-right:8px !important;
+    box-sizing:border-box;
+  }
+
+  .toolbar{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:8px !important;
+    align-items:stretch !important;
+  }
+
+  .toolbar .spacer,
+  .toolbar #score,
+  .toolbar #status,
+  .toolbar #computeState{
+    grid-column:1 / -1;
+  }
+
+  .toolbar button{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  .classrooms,
+  .classrooms.horizontal{
+    display:grid !important;
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+    width:100% !important;
+    min-width:0 !important;
+    overflow:visible !important;
+  }
+
+  .classroom{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    box-sizing:border-box;
+  }
+
+  .group-title-wrap,
+  .group-title-input{
+    min-width:0 !important;
+  }
+
+  .group-title-input{
+    max-width:none !important;
+    width:100% !important;
+  }
+
+  .desks{
+    width:100% !important;
+    min-width:0 !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  .slot-controls{
+    width:100% !important;
+  }
+
+  .pair-picker-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .row{
+    flex-wrap:wrap !important;
+  }
+
+  .row > *{
+    min-width:0 !important;
+  }
+
+  table{
+    max-width:none !important;
+  }
+
+  .table-wrap,
+  .members-table-wrap,
+  .member-table-wrap{
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  input, select, button{
+    max-width:100%;
+  }
+
+  .modal{
+    width:calc(100vw - 24px) !important;
+    max-width:calc(100vw - 24px) !important;
+    max-height:calc(100vh - 24px) !important;
+    overflow:auto !important;
+    box-sizing:border-box;
+  }
+}
+
+@media (max-width: 480px){
+  .toolbar{
+    grid-template-columns:1fr !important;
+  }
+
+  .slot-controls{
+    grid-template-columns:1fr 1fr !important;
+    gap:6px !important;
+  }
+
+  .slot-controls .add-slot,
+  .slot-controls .remove-slot{
+    height:34px !important;
+    padding-left:6px !important;
+    padding-right:6px !important;
+    font-size:12px !important;
+  }
+}

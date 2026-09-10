@@ -1,5 +1,28 @@
 # Version History
 
+## v23.8
+
+- Changed the default new-project attributes from `Name + Gender` to `Name + Category`
+- `Category` uses the category attribute type
+- Default Auto Balance weight for `Category` is `+8`
+- Existing projects and templates are unchanged
+
+
+
+## v23.7
+
+- Added mobile-only responsive layout without changing desktop styles
+- Sidebar stacks above the workspace on screens up to 768px
+- Splitter is hidden on mobile
+- Groups become a single-column layout on mobile
+- Toolbar wraps into two columns, then one column on very small screens
+- Pair Rules selectors stack vertically on mobile
+- Tables and desk areas can scroll horizontally when needed
+- Modals are constrained to the phone viewport
+- `Add Slot` / `Remove Slot` remain side by side
+
+
+
 ## v23.6
 
 - Added search boxes to both Pair Rules member selectors
